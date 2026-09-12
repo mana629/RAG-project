@@ -109,20 +109,50 @@ def split_documents(
 
     Args:
         documents (list[Document]): List of documents to split.
-        chunk_size (int, optional): Size of text chunks. Defaults to CHUNK_SIZE from env or 1000.
-        chunk_overlap (int, optional): Overlap between text chunks. Defaults to CHUNK_OVERLAP from env or 150.
+        chunk_size (int | None, optional): Size of text chunks. Defaults to CHUNK_SIZE from env or 1000.
+        chunk_overlap (int | None, optional): Overlap between text chunks. Defaults to CHUNK_OVERLAP from env or 150.
 
     Returns:
         list[Document]: Split document chunks.
-    """
-    size = chunk_size if chunk_size is not None else DEFAULT_CHUNK_SIZE
-    overlap = chunk_overlap if chunk_overlap is not None else DEFAULT_CHUNK_OVERLAP
 
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=size,
-        chunk_overlap=overlap,
+    Raises:
+        ValueError: If documents list is empty.
+    """
+    if not documents:
+        raise ValueError("No documents provided for splitting")
+
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=chunk_size or DEFAULT_CHUNK_SIZE,
+        chunk_overlap=chunk_overlap or DEFAULT_CHUNK_OVERLAP,
+        separators=["\n\n", "\n", ". ", " ", ""],
         length_function=len,
-        separators=["\n\n", "\n", " ", ""],
+        is_separator_regex=False,
     )
 
-    return splitter.split_documents(documents)
+    return text_splitter.split_documents(documents)
+
+
+def count_source_files(folder_path: str | Path) -> int:
+    """
+    Count the number of supported documents (PDF, DOCX) in a folder.
+
+    Args:
+        folder_path (str | Path): Path to the folder.
+
+    Returns:
+        int: Number of supported files found.
+    """
+    folder = Path(folder_path)
+
+    if not folder.exists() or not folder.is_dir():
+        return 0
+
+    return sum(
+        1
+        for path in folder.iterdir()
+        if path.is_file() and path.suffix.lower() in SUPPORTED_EXTENSIONS
+    )
+
+
+# Alias to maintain backward compatibility
+count_source_fils = count_source_files
