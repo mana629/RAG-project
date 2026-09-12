@@ -154,5 +154,8 @@ def count_source_files(folder_path: str | Path) -> int:
     )
 
 
-# Alias to maintain backward compatibility
-count_source_fils = count_source_files
+if __name__ == "__main__":
+    print("[OK] src/loader.py compiled and executed successfully.")
+    print(f"  - Supported Extensions: {SUPPORTED_EXTENSIONS}")
+    print(f"  - Default Chunk Size:   {DEFAULT_CHUNK_SIZE}")
+    print(f"  - Default Chunk Overlap: {DEFAULT_CHUNK_OVERLAP}")
